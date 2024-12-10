@@ -344,7 +344,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 echo "</body></html>";
 ?>
 ```
-4. Struktur Folder:
+## 4. Struktur Folder:
 Pastikan struktur foldernya seperti berikut:
 
 ```css
