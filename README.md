@@ -219,3 +219,155 @@ class Database {
 }
 ?>
 ```
+
+## Pertanyaan dan Tugas
+Implementasikan konsep modularisasi pada kode program pada praktukum sebelumnya
+dengan menggunakan class library untuk form dan database connection.
+
+Berikut adalah implementasi modularisasi untuk kode program dengan menggunakan class library untuk form dan database connection.
+
+## 1. Class Library untuk Form (form.php):
+```php
+<?php
+/**
+ * Class Form: Membuat form input sederhana
+ */
+class Form
+{
+    private $fields = array();
+    private $action;
+    private $submit = "Submit";
+    private $jumField = 0;
+
+    public function __construct($action, $submit)
+    {
+        $this->action = $action;
+        $this->submit = $submit;
+    }
+
+    public function addField($name, $label)
+    {
+        $this->fields[$this->jumField]['name'] = $name;
+        $this->fields[$this->jumField]['label'] = $label;
+        $this->jumField++;
+    }
+
+    public function displayForm()
+    {
+        echo "<form action='" . $this->action . "' method='POST'>";
+        echo '<table>';
+        foreach ($this->fields as $field) {
+            echo "<tr>";
+            echo "<td>" . $field['label'] . ":</td>";
+            echo "<td><input type='text' name='" . $field['name'] . "'></td>";
+            echo "</tr>";
+        }
+        echo "<tr><td colspan='2'>";
+        echo "<input type='submit' value='" . $this->submit . "'>";
+        echo "</td></tr>";
+        echo "</table>";
+        echo "</form>";
+    }
+}
+?>
+```
+## 2. Class Library untuk Database Connection (database.php):
+```php
+<?php
+/**
+ * Class Database: Menangani koneksi database
+ */
+class Database
+{
+    private $host = "localhost";
+    private $username = "root";
+    private $password = "";
+    private $dbName = "mahasiswa";
+    private $conn;
+
+    public function __construct()
+    {
+        $this->conn = new mysqli($this->host, $this->username, $this->password, $this->dbName);
+        if ($this->conn->connect_error) {
+            die("Koneksi gagal: " . $this->conn->connect_error);
+        }
+    }
+
+    public function query($sql)
+    {
+        return $this->conn->query($sql);
+    }
+
+    public function close()
+    {
+        $this->conn->close();
+    }
+}
+?>
+```
+## 3. Kode Utama (Menggabungkan Library):
+```php
+<?php
+/**
+ * Program Utama: Menggunakan modularisasi dengan class library
+ */
+include "form.php";
+include "database.php";
+
+echo "<html><head><title>Form Mahasiswa</title></head><body>";
+
+// Membuat form
+$form = new Form("", "Simpan Data");
+$form->addField("txtnim", "NIM");
+$form->addField("txtnama", "Nama");
+$form->addField("txtalamat", "Alamat");
+
+echo "<h3>Silahkan isi form berikut ini:</h3>";
+$form->displayForm();
+
+// Menyimpan data ke database jika form disubmit
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $nim = $_POST['txtnim'];
+    $nama = $_POST['txtnama'];
+    $alamat = $_POST['txtalamat'];
+
+    $db = new Database();
+    $sql = "INSERT INTO mahasiswa (nim, nama, alamat) VALUES ('$nim', '$nama', '$alamat')";
+    if ($db->query($sql)) {
+        echo "<p>Data berhasil disimpan!</p>";
+    } else {
+        echo "<p>Gagal menyimpan data: " . $db->conn->error . "</p>";
+    }
+    $db->close();
+}
+
+echo "</body></html>";
+?>
+```
+4. Struktur Folder:
+Pastikan struktur foldernya seperti berikut:
+
+```css
+project/
+├── form.php
+├── database.php
+└── index.php (kode utama)
+```
+## Penjelasan:
+### Modularisasi:
+- `form.php`: Mengelola pembuatan dan penampilan form.
+- `database`.php: Mengelola koneksi ke database dan eksekusi query.
+### Kode Utama:
+Menggunakan kedua library (`form` dan `database`) untuk menyederhanakan pengelolaan form dan penyimpanan data.
+### Database:
+- Buat database mahasiswa dengan tabel mahasiswa:
+```sql
+CREATE DATABASE mahasiswa;
+USE mahasiswa;
+CREATE TABLE mahasiswa (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nim VARCHAR(10) NOT NULL,
+    nama VARCHAR(50) NOT NULL,
+    alamat TEXT NOT NULL
+);
+```
